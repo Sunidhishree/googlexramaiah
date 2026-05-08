@@ -7,6 +7,7 @@ import HowItWorks from './pages/HowItWorks'
 import Programs from './pages/Programs'
 import Stories from './pages/Stories'
 import Donate from './pages/Donate'
+import VolunteerForm from './pages/VolunteerForm'
 
 export default function App() {
     const path = window.location.pathname
@@ -29,6 +30,10 @@ export default function App() {
 
     if (path === '/donate') {
         return <Donate />
+    }
+
+    if (path === '/volunteer') {
+        return <VolunteerForm />
     }
 
     if (path === '/login') {

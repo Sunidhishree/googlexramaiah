@@ -17,7 +17,7 @@ const homeHtml = `
         <li><a href="/how-it-works">How It Works</a></li>
         <li><a href="/programs">Programs</a></li>
         <li><a href="/stories">Stories</a></li>
-        <li><a href="#volunteer">Volunteer</a></li>
+        <li><a href="/volunteer">Volunteer</a></li>
         <li><a href="/donate" class="nav-cta">Donate Now</a></li>
         <li><a href="#" id="sign-out-link" style="color: var(--text-muted); margin-left: 1rem;">Sign Out</a></li>
     </ul>
@@ -219,7 +219,7 @@ const homeHtml = `
                 <li>Receive updates and photo stories from the field</li>
             </ul>
 
-            <a href="#volunteer" class="btn-primary">Start Volunteering →</a>
+            <a href="/volunteer" class="btn-primary">Start Volunteering →</a>
         </div>
     </div>
 </section>

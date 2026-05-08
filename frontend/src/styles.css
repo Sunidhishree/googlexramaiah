@@ -1814,3 +1814,169 @@ footer {
         order: -1;
     }
 }
+
+/* ── Volunteer Form Styles ── */
+.volunteer-section {
+    padding: 5rem 5%;
+    background: #fdfaf7;
+    min-height: 100vh;
+}
+
+.volunteer-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.volunteer-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.volunteer-form-card {
+    background: white;
+    padding: 3.5rem;
+    border-radius: 32px;
+    box-shadow: 0 25px 60px rgba(90, 74, 56, 0.08);
+    border: 1px solid rgba(90, 74, 56, 0.05);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-left: 0.2rem;
+}
+
+.form-group input, 
+.form-group select {
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(90, 74, 56, 0.15);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    outline: none;
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 113, 74, 0.1);
+}
+
+.file-upload-area {
+    margin-top: 0.5rem;
+}
+
+.file-label {
+    display: block;
+    padding: 2rem;
+    border: 2px dashed rgba(90, 74, 56, 0.15);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    background: rgba(90, 74, 56, 0.02);
+    color: var(--text-mid);
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.file-label:hover {
+    background: rgba(196, 113, 74, 0.04);
+    border-color: var(--terracotta);
+    color: var(--terracotta);
+}
+
+.volunteer-submit-btn {
+    width: 100%;
+    padding: 1.2rem;
+    background: var(--terracotta);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 2.5rem;
+    transition: all 0.3s;
+    box-shadow: 0 10px 30px rgba(196, 113, 74, 0.2);
+}
+
+.volunteer-submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(196, 113, 74, 0.3);
+}
+
+.volunteer-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.form-error {
+    background: #fff1f1;
+    color: #e53e3e;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    border: 1px solid #fed7d7;
+}
+
+.verification-result {
+    margin-top: 3rem;
+    padding: 2.5rem;
+    border-radius: 24px;
+    text-align: center;
+    animation: slideUp 0.5s ease;
+}
+
+.verification-result.success {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+}
+
+.verification-result.failure {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+}
+
+.verification-result h3 {
+    margin-bottom: 0.8rem;
+}
+
+.verification-result.success h3 { color: #2f855a; }
+.verification-result.failure h3 { color: #c53030; }
+
+.success-sub { color: #38a169; font-size: 0.9rem; margin-top: 0.5rem; }
+.failure-sub { color: #e53e3e; font-size: 0.9rem; margin-top: 0.5rem; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .volunteer-form-card {
+        padding: 2rem;
+    }
+}

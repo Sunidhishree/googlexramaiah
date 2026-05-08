@@ -3,3 +3,9 @@ python-dotenv>=0.19
 firebase-admin>=6.0
 pymongo>=4.0
 flask-cors>=3.0
+pytesseract
+Pillow
+opencv-python-headless
+thefuzz
+python-Levenshtein
+
