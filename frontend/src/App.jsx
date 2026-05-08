@@ -8,6 +8,8 @@ import Programs from './pages/Programs'
 import Stories from './pages/Stories'
 import Donate from './pages/Donate'
 import VolunteerForm from './pages/VolunteerForm'
+import OrphanageRegister from './pages/OrphanageRegister'
+import OrphanageDashboard from './pages/OrphanageDashboard'
 
 export default function App() {
     const path = window.location.pathname
@@ -34,6 +36,14 @@ export default function App() {
 
     if (path === '/volunteer') {
         return <VolunteerForm />
+    }
+
+    if (path === '/orphanage/register') {
+        return <OrphanageRegister />
+    }
+
+    if (path === '/orphanage/dashboard') {
+        return <OrphanageDashboard />
     }
 
     if (path === '/login') {

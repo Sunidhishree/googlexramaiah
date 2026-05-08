@@ -1,0 +1,255 @@
+.programs-page {
+    min-height: 100vh;
+    background-color: #fcfaf8;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+.programs-nav {
+    background: white;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #204155;
+    text-decoration: none;
+}
+.nav-logo span { color: #c4714a; }
+
+.nav-profile {
+    width: 350px;
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #eee;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #204155, #3b6b88);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.profile-header h3 {
+    margin: 0 0 0.2rem 0;
+    font-size: 1.2rem;
+}
+
+.profile-header p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.xp-bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.xp-bar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.xp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.xp-track {
+    width: 100%;
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.xp-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-out;
+}
+
+.xp-fill.bronze { background: linear-gradient(90deg, #cd7f32, #e69d57); }
+.xp-fill.silver { background: linear-gradient(90deg, #a8a9ad, #d1d2d4); }
+.xp-fill.gold { background: linear-gradient(90deg, #ffd700, #ffea75); }
+
+.programs-main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.feed-header {
+    margin-bottom: 2rem;
+}
+
+.feed-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: #204155;
+    margin-bottom: 0.5rem;
+}
+
+.feed-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.quests-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.quest-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s ease;
+}
+
+.quest-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+.quest-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.quest-badges {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.type-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+.type-badge.donate { background: #e8f5e9; color: #2e7d32; }
+.type-badge.volunteer { background: #e3f2fd; color: #1565c0; }
+.type-badge.wishlist { background: #fff3e0; color: #ef6c00; }
+
+.xp-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #fff8e1;
+    color: #ff8f00;
+}
+
+.quest-card h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #204155;
+}
+
+.quest-desc {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.quest-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.meta-item {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.quest-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn-accept {
+    padding: 0.8rem 1.5rem;
+    background: #c4714a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-accept:hover:not(:disabled) {
+    background: #a85c38;
+}
+
+.btn-accept.accepted {
+    background: #4caf50;
+    cursor: default;
+}
+
+.btn-whatsapp {
+    padding: 0.8rem 1.5rem;
+    background: #25D366;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
+}
+
+.btn-whatsapp:hover {
+    background: #128C7E;
+}
+
+.unauth-message {
+    text-align: center;
+    margin-top: 5rem;
+    padding: 3rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}

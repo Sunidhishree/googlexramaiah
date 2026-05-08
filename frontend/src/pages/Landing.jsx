@@ -8,6 +8,7 @@ const heroHtml = `
         <li><a href="#programs">Programs</a></li>
         <li><a href="#stories">Stories</a></li>
         <li><a href="#volunteer">Volunteer</a></li>
+        <li><a href="/orphanage/register" style="font-size: 0.85rem; padding: 0.4rem 0.8rem; border: 1px solid currentColor; border-radius: 100px; opacity: 0.8;">Organization? Register here</a></li>
         <li><a href="/login" class="nav-cta">Login</a></li>
     </ul>
 </nav>

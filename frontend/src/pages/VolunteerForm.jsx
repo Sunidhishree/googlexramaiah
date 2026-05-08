@@ -164,7 +164,7 @@ export default function VolunteerForm() {
                             <div className={`verification-result ${result.verified ? 'success' : 'failure'}`}>
                                 <h3>{result.verified ? '✓ Verification Successful' : '⚠ Verification Failed'}</h3>
                                 <p>{result.reason}</p>
-                                {result.verified && <p className="success-sub">You are now registered as a volunteer. Welcome to the family!</p>}
+                                {result.verified && <p className="success-sub">Thank you for registering with us {formData.name}. The organisations registered with us would love your help.</p>}
                                 {!result.verified && <p className="failure-sub">Please ensure the image is clear and details match your input.</p>}
                             </div>
                         )}

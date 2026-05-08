@@ -1,0 +1,289 @@
+.reg-container {
+    min-height: 100vh;
+    padding: 120px 5% 60px;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    position: relative;
+    overflow: hidden;
+}
+
+.reg-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    padding: 3rem;
+    box-shadow: 0 25px 60px rgba(32, 65, 85, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.reg-header {
+    margin-bottom: 2.5rem;
+}
+
+.reg-kicker {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--terracotta);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.reg-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: var(--text-dark);
+    margin-bottom: 0.8rem;
+}
+
+.reg-subtitle {
+    color: var(--text-mid);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+/* Progress Bar */
+.progress-container {
+    margin-bottom: 3rem;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 0.8rem;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+
+.step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--text-dark);
+    display: block;
+}
+
+.progress-track {
+    height: 8px;
+    background: rgba(196, 113, 74, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--terracotta), var(--warm-gold));
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form Styles */
+.reg-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.full-width {
+    grid-column: span 2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-mid);
+}
+
+.form-input {
+    padding: 0.9rem 1.2rem;
+    border-radius: 14px;
+    border: 1px solid rgba(32, 65, 85, 0.12);
+    background: white;
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--terracotta);
+    box-shadow: 0 0 0 4px rgba(196, 113, 74, 0.1);
+}
+
+/* Upload Area */
+.upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.upload-box {
+    border: 2px dashed rgba(196, 113, 74, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(196, 113, 74, 0.02);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.upload-box:hover {
+    background: rgba(196, 113, 74, 0.05);
+    border-color: var(--terracotta);
+}
+
+.upload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    display: block;
+}
+
+.upload-text {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    font-weight: 600;
+}
+
+.upload-hint {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+/* Navigation Buttons */
+.nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(32, 65, 85, 0.05);
+}
+
+.btn-back {
+    padding: 0.8rem 1.8rem;
+    border-radius: 50px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover:not(:disabled) {
+    border-color: var(--text-dark);
+    color: var(--text-dark);
+}
+
+.btn-back:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Status Screens */
+.status-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--cream);
+}
+
+.status-card {
+    max-width: 450px;
+    width: 100%;
+    background: white;
+    padding: 3rem;
+    border-radius: 30px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+}
+
+.status-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.status-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.status-desc {
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.error-msg {
+    background: #fdf2f2;
+    color: #9b1c1c;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    margin-top: 1.5rem;
+    border: 1px solid #fbd5d5;
+}
+
+/* AI Banner */
+.ai-banner {
+    background: linear-gradient(90deg, rgba(122, 158, 126, 0.1), rgba(196, 113, 74, 0.1));
+    border: 1px solid rgba(122, 158, 126, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.ai-banner-icon {
+    font-size: 1.8rem;
+}
+
+.ai-banner-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.ai-banner-text {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .reg-form-grid, .upload-grid {
+        grid-template-columns: 1fr;
+    }
+    .full-width {
+        grid-column: span 1;
+    }
+    .reg-card {
+        padding: 2rem;
+    }
+    .reg-title {
+        font-size: 2.2rem;
+    }
+}

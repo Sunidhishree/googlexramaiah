@@ -1,0 +1,196 @@
+.stories-page {
+    min-height: 100vh;
+    background-color: #f5f7f9;
+    font-family: 'Inter', sans-serif;
+    color: #333;
+}
+
+.stories-nav {
+    background: white;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #204155;
+    text-decoration: none;
+}
+.nav-logo span { color: #c4714a; }
+
+.user-badge {
+    font-size: 0.9rem;
+    color: #666;
+    background: #f0f4f8;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.btn-login-small {
+    padding: 0.6rem 1.2rem;
+    background: #204155;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-login-small:hover {
+    background: #142c3b;
+}
+
+.stories-main {
+    max-width: 650px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.stories-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.stories-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #204155;
+    margin-bottom: 0.5rem;
+}
+
+.stories-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.stories-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding-bottom: 4rem;
+}
+
+.story-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    border: 1px solid #eaeaea;
+}
+
+.story-org-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1.5rem;
+}
+
+.org-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c4714a, #d88e6a);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.org-info h3 {
+    margin: 0 0 0.2rem 0;
+    font-size: 1.1rem;
+    color: #222;
+}
+
+.org-info span {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.story-image-container {
+    width: 100%;
+    max-height: 500px;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.story-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.story-content {
+    padding: 1.2rem 1.5rem 0.5rem 1.5rem;
+}
+
+.story-content p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.story-tags {
+    margin-top: 0.8rem;
+    color: #0066cc;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.story-interactions {
+    padding: 0.8rem 1.5rem 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.btn-like {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-like:hover:not(:disabled) {
+    background: #f5f5f5;
+}
+
+.btn-like.liked {
+    color: #e0245e;
+}
+
+.heart-icon {
+    font-size: 1.4rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    color: #777;
+    font-size: 1.1rem;
+}
