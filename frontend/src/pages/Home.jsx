@@ -14,9 +14,9 @@ const homeHtml = `
 <nav>
     <div class="logo">Ummeed<span>.</span></div>
     <ul>
-        <li><a href="#how">How It Works</a></li>
-        <li><a href="#programs">Programs</a></li>
-        <li><a href="#stories">Stories</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
+        <li><a href="/programs">Programs</a></li>
+        <li><a href="/stories">Stories</a></li>
         <li><a href="#volunteer">Volunteer</a></li>
         <li><a href="#donate" class="nav-cta">Donate Now</a></li>
         <li><a href="#" id="sign-out-link" style="color: var(--text-muted); margin-left: 1rem;">Sign Out</a></li>
@@ -79,7 +79,7 @@ const homeHtml = `
         <p>Ummeed connects welfare centers, volunteers, and communities — bringing food, shelter, education, and healing to vulnerable hearts across India.</p>
         <div class="hero-btns">
             <a href="#donate" class="btn-primary">💛 Donate Today</a>
-            <a href="#programs" class="btn-secondary">Explore Programs</a>
+            <a href="/programs" class="btn-secondary">Explore Programs</a>
         </div>
     </div>
 </section>
@@ -224,104 +224,6 @@ const homeHtml = `
     </div>
 </section>
 
-<section class="section-programs" id="programs">
-    <div class="section-tag">Our Work</div>
-    <h2 class="section-title">Programs making a difference</h2>
-    <p class="section-sub">Six areas where Ummeed and its partner centers focus their care — because every dimension of human dignity matters.</p>
-
-    <div class="programs-grid">
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#fde8d8,#f5c4a0);">🍱</div>
-            <div class="program-body">
-                <h3>Hunger Relief</h3>
-                <p>Daily community kitchens, ration kits for families, and food camps during crises — no one should sleep hungry.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#e8f0e8,#c8ddc8);">📚</div>
-            <div class="program-body">
-                <h3>Education Access</h3>
-                <p>After-school tutoring, school kit distribution, and scholarships for children at risk of dropping out.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#fce8e8,#f0b4b4);">🏥</div>
-            <div class="program-body">
-                <h3>Medical Support</h3>
-                <p>Free health camps, medicine distribution, and connecting vulnerable families with government healthcare.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#fef0d8,#fad898);">🧠</div>
-            <div class="program-body">
-                <h3>Mental Health</h3>
-                <p>Trauma counseling, mental wellness workshops, and peer support groups for survivors and elders.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#e8eaf8,#c8cef0);">🏠</div>
-            <div class="program-body">
-                <h3>Safe Shelter</h3>
-                <p>Temporary shelter support for displaced families, women fleeing abuse, and homeless elderly citizens.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-        <div class="program-card">
-            <div class="program-img" style="background:linear-gradient(135deg,#e8f5f0,#b8ddd0);">💼</div>
-            <div class="program-body">
-                <h3>Skill &amp; Livelihood</h3>
-                <p>Vocational training, micro-enterprise support, and job placement to help communities become self-reliant.</p>
-                <a href="#" class="program-link">Learn more</a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section-stories" id="stories">
-    <div class="section-tag">Real Voices</div>
-    <h2 class="section-title">Stories of hope</h2>
-    <p class="section-sub">Every number behind our impact is a real person with a name and a story.</p>
-
-    <div class="testimonials-row">
-        <div class="testimonial-card" style="border-color:#7a9e7e;">
-            <p class="quote">When the floods took everything, Ummeed's volunteers showed up with food, blankets, and a listening ear. They didn't just help us survive — they helped us feel human again.</p>
-            <div class="author">
-                <div class="author-avatar" style="background:#7a9e7e;">RD</div>
-                <div>
-                    <div class="author-name">Razia Devi</div>
-                    <div class="author-role">Flood Relief Beneficiary, Patna</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="testimonial-card" style="border-color:#c4714a;">
-            <p class="quote">I was a corporate professional who wanted to do something meaningful on weekends. Ummeed connected me to a nearby shelter home. It changed me more than it changed them.</p>
-            <div class="author">
-                <div class="author-avatar" style="background:#c4714a;">AS</div>
-                <div>
-                    <div class="author-name">Arjun Sharma</div>
-                    <div class="author-role">Weekend Volunteer, Bengaluru</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="testimonial-card" style="border-color:#d4a24a;">
-            <p class="quote">Our center was struggling to track donations and volunteer schedules. Ummeed gave us a platform and a community. We now serve 3× the families we could before.</p>
-            <div class="author">
-                <div class="author-avatar" style="background:#d4a24a;">FK</div>
-                <div>
-                    <div class="author-name">Fatima Khan</div>
-                    <div class="author-role">Center Coordinator, Hyderabad</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <div class="cta-banner" id="donate">
     <div class="cta-text">
         <h2>Every act of kindness <br>plants a seed of hope 🌱</h2>
@@ -348,12 +250,12 @@ const homeHtml = `
         <div class="footer-col">
             <h4>Programs</h4>
             <ul>
-                <li><a href="#">Hunger Relief</a></li>
-                <li><a href="#">Education</a></li>
-                <li><a href="#">Healthcare</a></li>
-                <li><a href="#">Mental Health</a></li>
-                <li><a href="#">Shelter</a></li>
-                <li><a href="#">Livelihood</a></li>
+                <li><a href="/programs">Hunger Relief</a></li>
+                <li><a href="/programs">Education</a></li>
+                <li><a href="/programs">Healthcare</a></li>
+                <li><a href="/programs">Mental Health</a></li>
+                <li><a href="/programs">Shelter</a></li>
+                <li><a href="/programs">Livelihood</a></li>
             </ul>
         </div>
 
