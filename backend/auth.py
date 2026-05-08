@@ -19,12 +19,12 @@ def verify_firebase_token(f):
     """Verify a Firebase ID token using the Firebase Admin SDK."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Development bypass: when set, skip token verification and inject a dev user.
+        # Optional local-dev bypass. Never allow bypass in production.
         try:
             bypass_env = os.getenv("CHATBOT_BYPASS_AUTH", "false").lower() in ("1", "true", "yes")
             flask_env = os.getenv("FLASK_ENV", "").lower()
-            if bypass_env or flask_env == "development":
-                print("[Auth] Bypass enabled (CHATBOT_BYPASS_AUTH or FLASK_ENV=development) — skipping token verification (dev only)")
+            if bypass_env and flask_env != "production":
+                print("[Auth] Bypass enabled through CHATBOT_BYPASS_AUTH (non-production only)")
                 request.user = {"uid": "dev_bypass_user", "email": "dev@local"}
                 return f(*args, **kwargs)
         except Exception:
@@ -46,7 +46,7 @@ def verify_firebase_token(f):
                 decoded_token = auth.verify_id_token(id_token)
             except Exception as primary_err:
                 print(f"[Auth Warning] Primary verification failed: {primary_err}")
-                return jsonify({"error": "Invalid token", "details": str(primary_err)}), 401
+                return jsonify({"error": "Invalid token"}), 401
 
             if "uid" not in decoded_token:
                 decoded_token["uid"] = decoded_token.get("user_id") or decoded_token.get("sub")
@@ -55,6 +55,6 @@ def verify_firebase_token(f):
             return f(*args, **kwargs)
         except Exception as e:
             print(f"[Token Error] {str(e)}")
-            return jsonify({"error": "Invalid token", "details": str(e)}), 401
+            return jsonify({"error": "Invalid token"}), 401
 
     return decorated_function
