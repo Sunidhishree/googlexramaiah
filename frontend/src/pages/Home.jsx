@@ -18,7 +18,7 @@ const homeHtml = `
         <li><a href="/programs">Programs</a></li>
         <li><a href="/stories">Stories</a></li>
         <li><a href="#volunteer">Volunteer</a></li>
-        <li><a href="#donate" class="nav-cta">Donate Now</a></li>
+        <li><a href="/donate" class="nav-cta">Donate Now</a></li>
         <li><a href="#" id="sign-out-link" style="color: var(--text-muted); margin-left: 1rem;">Sign Out</a></li>
     </ul>
 </nav>
@@ -78,7 +78,7 @@ const homeHtml = `
         <h1>Spreading <em>hope</em> to those who need it most</h1>
         <p>Ummeed connects welfare centers, volunteers, and communities — bringing food, shelter, education, and healing to vulnerable hearts across India.</p>
         <div class="hero-btns">
-            <a href="#donate" class="btn-primary">💛 Donate Today</a>
+            <a href="/donate" class="btn-primary">💛 Donate Today</a>
             <a href="/programs" class="btn-secondary">Explore Programs</a>
         </div>
     </div>
@@ -230,7 +230,7 @@ const homeHtml = `
         <p>Whether you give ₹100 or 1 hour a week — you become part of a story of change that ripples across communities.</p>
     </div>
     <div class="cta-actions">
-        <a href="#" class="btn-white">Donate Now</a>
+        <a href="/donate" class="btn-white">Donate Now</a>
         <a href="#" class="btn-outline-white">Volunteer Today</a>
     </div>
 </div>

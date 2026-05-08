@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import HowItWorks from './pages/HowItWorks'
 import Programs from './pages/Programs'
 import Stories from './pages/Stories'
+import Donate from './pages/Donate'
 
 export default function App() {
     const path = window.location.pathname
@@ -24,6 +25,10 @@ export default function App() {
 
     if (path === '/stories') {
         return <Stories />
+    }
+
+    if (path === '/donate') {
+        return <Donate />
     }
 
     if (path === '/login') {
