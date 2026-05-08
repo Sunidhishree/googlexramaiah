@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react'
+import { auth } from '../firebase'
+import { signOut } from 'firebase/auth'
 
 const homeHtml = `
 <!-- Floating bg leaves -->
@@ -17,6 +19,7 @@ const homeHtml = `
         <li><a href="#stories">Stories</a></li>
         <li><a href="#volunteer">Volunteer</a></li>
         <li><a href="#donate" class="nav-cta">Donate Now</a></li>
+        <li><a href="#" id="sign-out-link" style="color: var(--text-muted); margin-left: 1rem;">Sign Out</a></li>
     </ul>
 </nav>
 
@@ -400,11 +403,25 @@ export default function Home() {
 
         el.querySelectorAll('a[href^="#"]').forEach(a => {
             a.addEventListener('click', e => {
+                if (a.id === 'sign-out-link') return; // Handled separately
                 const href = a.getAttribute('href')
                 const target = el.querySelector(href)
                 if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }) }
             })
         })
+
+        const signOutLink = el.querySelector('#sign-out-link')
+        if (signOutLink) {
+            signOutLink.addEventListener('click', async (e) => {
+                e.preventDefault()
+                try {
+                    await signOut(auth)
+                    window.location.href = '/'
+                } catch (error) {
+                    console.error('Sign out error:', error)
+                }
+            })
+        }
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {

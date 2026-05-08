@@ -7,7 +7,22 @@ export default function Signup() {
     const handleGoogleSignup = async () => {
         try {
             setError('')
-            await signInWithGoogle()
+            const result = await signInWithGoogle()
+            const user = result.user
+            const token = await user.getIdToken()
+
+            // Sync with backend
+            const response = await fetch('http://localhost:5000/api/auth/sync', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to sync with backend')
+            }
+
             window.location.href = '/home'
         } catch (err) {
             setError(err?.message || 'Google sign-up failed')
