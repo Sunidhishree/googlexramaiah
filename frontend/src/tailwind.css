@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@config "../tailwind.config.js";
+
+:root {
+  --impact-amber: #F59E0B;
+  --impact-coral: #FB7185;
+  --impact-teal: #14B8A6;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 font-sans;
+}

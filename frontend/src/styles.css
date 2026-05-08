@@ -122,6 +122,507 @@ a {
     width: min(100%, 420px)
 }
 
+/* Seva Track page */
+.seva-page {
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden
+}
+
+.seva-page nav .logo {
+    text-decoration: none
+}
+
+.seva-hero {
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding-top: 80px
+}
+
+.seva-hero-content {
+    max-width: 650px
+}
+
+.seva-hero-content h1 {
+    max-width: 11ch
+}
+
+.seva-hero-art {
+    position: absolute;
+    right: -10px;
+    bottom: -34px;
+    width: min(52vw, 650px);
+    max-height: 82vh;
+    z-index: 1;
+    pointer-events: none
+}
+
+.seva-stats {
+    background: var(--cream);
+    margin-top: 0;
+    padding-top: 2.2rem;
+    padding-bottom: 2.4rem;
+    border-top: 1px solid rgba(196, 113, 74, 0.08)
+}
+
+.seva-wave {
+    overflow: hidden;
+    line-height: 0;
+    background: #eef5ef;
+    margin-bottom: -2px
+}
+
+.seva-page .step-icon {
+    color: var(--text-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase
+}
+
+.seva-map-section {
+    padding: 7rem 5%;
+    background: var(--cream)
+}
+
+.seva-map-copy {
+    max-width: 720px;
+    margin: 0 auto 3rem;
+    text-align: center
+}
+
+.seva-map-copy p {
+    color: var(--text-mid);
+    line-height: 1.8;
+    max-width: 620px;
+    margin: 0 auto 1.4rem
+}
+
+.seva-location-btn {
+    border: none;
+    width: auto;
+    cursor: pointer;
+    margin-top: 0
+}
+
+.seva-location-btn:disabled {
+    cursor: wait;
+    opacity: 0.72;
+    transform: none
+}
+
+.seva-location-status {
+    margin-top: 1rem !important;
+    color: var(--text-light) !important;
+    font-size: 0.86rem
+}
+
+.seva-map-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 1.5rem;
+    max-width: 1180px;
+    margin: 0 auto;
+    align-items: stretch
+}
+
+.seva-map {
+    min-height: 560px;
+    border-radius: 24px;
+    background: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(74, 113, 80, 0.12);
+    box-shadow: 0 20px 50px rgba(74, 113, 80, 0.12);
+}
+
+.map-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(253, 246, 236, 0.8);
+    z-index: 10;
+    font-weight: 700;
+    color: var(--text-mid);
+}
+
+.map-source {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.65rem;
+    color: var(--text-light);
+    background: rgba(0,0,0,0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.seva-map-list {
+    background: white;
+    border-radius: 24px;
+    padding: 1rem;
+    border: 1px solid rgba(45, 36, 22, 0.08);
+    box-shadow: 0 16px 40px rgba(45, 36, 22, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem
+}
+
+.map-list-heading {
+    padding: 0.8rem 0.8rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem
+}
+
+.map-list-heading span {
+    color: var(--text-light);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase
+}
+
+.map-list-heading strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--text-dark)
+}
+
+.orphanage-row {
+    border: 1px solid rgba(45, 36, 22, 0.08);
+    background: #fffaf4;
+    border-radius: 18px;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.85rem;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.25s, border-color 0.25s, background 0.25s
+}
+
+.orphanage-row:hover,
+.orphanage-row.active {
+    transform: translateY(-2px);
+    border-color: rgba(196, 113, 74, 0.3);
+    background: #fff5ec
+}
+
+.orphanage-rank {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: var(--deep-sage);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800
+}
+
+.orphanage-row strong,
+.orphanage-row small,
+.orphanage-row em {
+    display: block
+}
+
+.orphanage-row strong {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-dark);
+    font-size: 1.05rem;
+    margin-bottom: 0.25rem
+}
+
+.orphanage-row small {
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1.4
+}
+
+.orphanage-row em {
+    color: var(--terracotta);
+    font-size: 0.82rem;
+    font-style: normal;
+    font-weight: 800;
+    margin-top: 0.38rem
+}
+
+.map-source {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--deep-sage);
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase
+}
+
+.priority {
+    border-radius: 999px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.68rem;
+    font-style: normal;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase
+}
+
+.priority-high {
+    background: #fce8e8;
+    color: #a85c3a
+}
+
+.priority-medium {
+    background: #fff5e6;
+    color: #9b6b18
+}
+
+.priority-low {
+    background: #eef5ee;
+    color: var(--deep-sage)
+}
+
+.seva-story {
+    padding-top: 7rem;
+    padding-bottom: 7rem
+}
+
+.seva-phone {
+    background: linear-gradient(135deg, #e8f0e8 0%, #c8ddc8 100%);
+    min-height: 520px
+}
+
+.phone-shell {
+    width: min(76%, 300px);
+    height: 500px;
+    border-radius: 36px;
+    background: #2d2416;
+    padding: 12px;
+    box-shadow: 0 24px 60px rgba(45, 36, 22, 0.22)
+}
+
+.phone-top {
+    height: 52px;
+    border-radius: 26px 26px 0 0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    color: var(--text-light);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase
+}
+
+.phone-top i {
+    width: 24px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--sage);
+    display: block
+}
+
+.phone-camera {
+    position: relative;
+    height: 360px;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+        linear-gradient(135deg, #fdf6ec, #f5e9d3);
+    background-size: 34px 34px, 34px 34px, 100% 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 34%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--leaf-green), transparent);
+    animation: sevaScan 3s ease-in-out infinite
+}
+
+@keyframes sevaScan {
+    0%,
+    100% {
+        top: 20%;
+        opacity: 0.35
+    }
+
+    50% {
+        top: 72%;
+        opacity: 0.95
+    }
+}
+
+.kit-box {
+    width: 160px;
+    min-height: 130px;
+    border-radius: 18px;
+    background: #c4714a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 16px 35px rgba(196, 113, 74, 0.24);
+    text-align: center
+}
+
+.kit-box span {
+    width: 62px;
+    height: 42px;
+    border-radius: 8px;
+    background: #f5e9d3;
+    display: block;
+    margin-bottom: 14px;
+    border: 4px solid rgba(255, 255, 255, 0.5)
+}
+
+.kit-box strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 600
+}
+
+.kit-box small {
+    margin-top: 5px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 700;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em
+}
+
+.phone-bottom {
+    height: 64px;
+    border-radius: 0 0 26px 26px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.capture-button {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 6px solid rgba(196, 113, 74, 0.18);
+    background: var(--terracotta)
+}
+
+.seva-agent-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+}
+
+.seva-agent-img {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-dark);
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0
+}
+
+.cta-banner .cta-text p {
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.8;
+    max-width: 620px
+}
+
+.cta-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap
+}
+
+@media (max-width: 900px) {
+    .seva-hero {
+        min-height: auto;
+        padding: 8.5rem 0 3rem
+    }
+
+    .seva-hero-art {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: 96%;
+        margin: 1rem auto 0;
+        order: 2
+    }
+
+    .seva-hero {
+        flex-direction: column
+    }
+
+    .seva-hero-content h1 {
+        max-width: 12ch
+    }
+
+    .seva-phone {
+        min-height: 480px
+    }
+
+    .phone-shell {
+        height: 455px
+    }
+
+    .phone-camera {
+        height: 318px
+    }
+
+    .seva-map-layout {
+        grid-template-columns: 1fr
+    }
+
+    .seva-map {
+        min-height: 430px
+    }
+}
+
+@media (max-width:768px) {
+    .seva-page nav {
+        align-items: center
+    }
+
+    .seva-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem
+    }
+
+    .seva-story {
+        padding-top: 4.5rem;
+        padding-bottom: 4.5rem
+    }
+
+    .seva-map-section {
+        padding: 4.5rem 5%
+    }
+
+    .orphanage-row {
+        grid-template-columns: auto 1fr;
+        align-items: flex-start
+    }
+
+    .priority {
+        grid-column: 2;
+        width: fit-content
+    }
+}
+
 .auth-form h2 {
     margin-bottom: 16px;
     font-size: 28px
@@ -185,6 +686,20 @@ a {
     margin-top: 10px;
     color: #a64b2a;
     font-size: 13px
+}
+
+.auth-switch {
+    margin-top: 16px;
+    color: var(--text-mid);
+    font-size: 14px;
+    line-height: 1.7;
+    text-align: center
+}
+
+.auth-switch a {
+    color: var(--terracotta);
+    font-weight: 800;
+    text-decoration: none
 }
 
 .home-shell {

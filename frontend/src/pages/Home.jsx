@@ -12,7 +12,7 @@ const homeHtml = `
 <nav>
     <div class="logo">Ummeed<span>.</span></div>
     <ul>
-        <li><a href="#how">How It Works</a></li>
+        <li><a href="/how-it-works">How It Works</a></li>
         <li><a href="#programs">Programs</a></li>
         <li><a href="#stories">Stories</a></li>
         <li><a href="#volunteer">Volunteer</a></li>

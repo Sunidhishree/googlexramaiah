@@ -3,28 +3,40 @@ from functools import wraps
 from flask import jsonify, request
 import firebase_admin
 from firebase_admin import auth, credentials
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+
+
+def resolve_backend_path(path):
+    if not path:
+        return None
+
+    if os.path.isabs(path):
+        return path
+
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # Initialize Firebase Admin SDK
-cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH") or os.path.join(os.path.dirname(__file__), 'firebase-credentials.json')
+cred_path = resolve_backend_path(os.getenv("FIREBASE_CREDENTIALS_PATH")) or os.path.join(os.path.dirname(__file__), 'firebase-credentials.json')
 if not firebase_admin._apps:
     if os.path.exists(cred_path):
         cred = credentials.Certificate(cred_path)
-        firebase_admin.initialize_app(cred)
+        firebase_admin.initialize_app(cred, {"projectId": os.getenv("FIREBASE_PROJECT_ID")})
     else:
         # Fallback to default initialization (uses GOOGLE_APPLICATION_CREDENTIALS)
-        firebase_admin.initialize_app()
+        firebase_admin.initialize_app(options={"projectId": os.getenv("FIREBASE_PROJECT_ID")})
 
 
 def verify_firebase_token(f):
     """Verify a Firebase ID token using the Firebase Admin SDK."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Development bypass: when set, skip token verification and inject a dev user.
+        # Development bypass: only when explicitly set.
         try:
             bypass_env = os.getenv("CHATBOT_BYPASS_AUTH", "false").lower() in ("1", "true", "yes")
-            flask_env = os.getenv("FLASK_ENV", "").lower()
-            if bypass_env or flask_env == "development":
-                print("[Auth] Bypass enabled (CHATBOT_BYPASS_AUTH or FLASK_ENV=development) — skipping token verification (dev only)")
+            if bypass_env:
+                print("[Auth] Bypass enabled via CHATBOT_BYPASS_AUTH — skipping token verification (dev only)")
                 request.user = {"uid": "dev_bypass_user", "email": "dev@local"}
                 return f(*args, **kwargs)
         except Exception:
