@@ -3,6 +3,11 @@ from functools import wraps
 from flask import jsonify, request
 import firebase_admin
 from firebase_admin import auth, credentials
+from datetime import datetime
+try:
+    from pymongo import MongoClient
+except Exception:
+    MongoClient = None
 
 # Initialize Firebase Admin SDK
 cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH") or os.path.join(os.path.dirname(__file__), 'firebase-credentials.json')
@@ -52,6 +57,33 @@ def verify_firebase_token(f):
                 decoded_token["uid"] = decoded_token.get("user_id") or decoded_token.get("sub")
 
             request.user = decoded_token
+
+            # Persist or update user record in MongoDB if available
+            try:
+                mongo_uri = os.getenv('MONGODB_URI')
+                if mongo_uri and MongoClient is not None:
+                    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+                    db_name = os.getenv('MONGODB_DB')
+                    if db_name:
+                        db = client[db_name]
+                    else:
+                        # fallback to database from URI or 'ummeed'
+                        db = client.get_default_database() or client['ummeed']
+
+                    users = db.get_collection('users')
+                    users.update_one(
+                        {"uid": decoded_token["uid"]},
+                        {"$set": {
+                            "email": decoded_token.get('email'),
+                            "name": decoded_token.get('name') or decoded_token.get('display_name'),
+                            "provider": decoded_token.get('firebase', {}).get('sign_in_provider') if isinstance(decoded_token.get('firebase'), dict) else None,
+                            "last_seen": datetime.utcnow()
+                        }},
+                        upsert=True
+                    )
+            except Exception as e:
+                # Don't fail the request if DB write fails; log for diagnostics
+                print(f"[Auth DB] Failed to upsert user: {e}")
             return f(*args, **kwargs)
         except Exception as e:
             print(f"[Token Error] {str(e)}")
