@@ -1,4 +1,5 @@
 import os
+<<<<<<< HEAD
 import re
 import cv2
 import pytesseract
@@ -9,6 +10,13 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from auth import verify_firebase_token, mongo_client
 from datetime import datetime
+=======
+from datetime import datetime, timezone
+
+from flask import Flask, jsonify, request
+from auth import verify_firebase_token
+from db import get_collection, ping_database
+>>>>>>> f887bb503596bd52b243f60b04f7af620415fc2d
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -329,12 +337,20 @@ def verify_id():
 
 @app.route('/api')
 def index():
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'mongodb': 'connected' if ping_database() else 'disconnected'})
+
+
+@app.route('/api/health')
+def health():
+    db_ok = ping_database()
+    status_code = 200 if db_ok else 503
+    return jsonify({'status': 'ok' if db_ok else 'degraded', 'mongodb': db_ok}), status_code
 
 @app.route('/api/auth/sync', methods=['POST'])
 @verify_firebase_token
 def sync_user():
     user = getattr(request, 'user', None)
+<<<<<<< HEAD
     return jsonify({'status': 'synced', 'user': user})
 
 @app.route('/api/orphanage/<orphanage_id>', methods=['GET'])
@@ -580,6 +596,37 @@ def user_profile():
         'name': request.user.get('name') or request.user.get('email', 'Volunteer'),
         'xp': 0
     })
+=======
+    if not user or "uid" not in user:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        users_collection = get_collection("users")
+        now = datetime.now(timezone.utc)
+        users_collection.update_one(
+            {"uid": user["uid"]},
+            {
+                "$set": {
+                    "uid": user["uid"],
+                    "email": user.get("email"),
+                    "name": user.get("name"),
+                    "last_seen_at": now,
+                },
+                "$setOnInsert": {
+                    "created_at": now,
+                },
+            },
+            upsert=True,
+        )
+    except RuntimeError as config_error:
+        print(f"[DB Config Error] {config_error}")
+        return jsonify({'error': 'Server configuration error'}), 500
+    except Exception as db_error:
+        print(f"[DB Error] {db_error}")
+        return jsonify({'error': 'Database unavailable'}), 503
+
+    return jsonify({'message': 'Protected endpoint', 'user': {'uid': user.get("uid"), 'email': user.get("email")}})
+>>>>>>> f887bb503596bd52b243f60b04f7af620415fc2d
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))

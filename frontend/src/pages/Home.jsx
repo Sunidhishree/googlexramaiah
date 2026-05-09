@@ -14,12 +14,28 @@ const homeHtml = `
 <nav>
     <div class="logo">Ummeed<span>.</span></div>
     <ul>
+<<<<<<< HEAD
         <li><a href="/how-it-works">How It Works</a></li>
         <li><a href="/programs">Programs</a></li>
         <li><a href="/stories">Stories</a></li>
         <li><a href="/volunteer">Volunteer</a></li>
         <li><a href="/donate" class="nav-cta">Donate Now</a></li>
         <li><a href="#" id="sign-out-link" style="color: var(--text-muted); margin-left: 1rem;">Sign Out</a></li>
+=======
+        <li><a href="#how">How It Works</a></li>
+        <li class="programs-nav-item">
+            <a href="#programs" data-programs-toggle="true">Programs</a>
+            <div class="animated-list programs-inline-dropdown" data-programs-dropdown="true" hidden>
+                <ul>
+                    <li><a class="list-item" href="/programs/orphanage-activities"><span class="list-item-label">Orphanage Activities</span><span class="list-item-arrow">→</span></a></li>
+                    <li><a class="list-item" href="/programs/elara"><span class="list-item-label">Elara</span><span class="list-item-arrow">→</span></a></li>
+                </ul>
+            </div>
+        </li>
+        <li><a href="#stories">Stories</a></li>
+        <li><a href="#volunteer">Volunteer</a></li>
+        <li><a href="#donate" class="nav-cta">Donate Now</a></li>
+>>>>>>> f887bb503596bd52b243f60b04f7af620415fc2d
     </ul>
 </nav>
 
@@ -303,9 +319,40 @@ export default function Home() {
         const el = ref.current
         if (!el) return
 
+        const programsToggle = el.querySelector('[data-programs-toggle="true"]')
+        const programsDropdown = el.querySelector('[data-programs-dropdown="true"]')
+        const openProgramsDropdown = () => {
+            if (programsDropdown) programsDropdown.hidden = false
+        }
+        const closeProgramsDropdown = () => {
+            if (programsDropdown) programsDropdown.hidden = true
+        }
+        const handleProgramsToggleClick = (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (!programsDropdown) return
+            programsDropdown.hidden = !programsDropdown.hidden
+        }
+        const handleDocumentClick = (e) => {
+            if (!programsDropdown || !programsToggle) return
+            if (programsDropdown.contains(e.target) || programsToggle.contains(e.target)) return
+            closeProgramsDropdown()
+        }
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') closeProgramsDropdown()
+        }
+
+        if (programsToggle) programsToggle.addEventListener('click', handleProgramsToggleClick)
+        document.addEventListener('click', handleDocumentClick)
+        document.addEventListener('keydown', handleEscape)
+
         el.querySelectorAll('a[href^="#"]').forEach(a => {
             a.addEventListener('click', e => {
+<<<<<<< HEAD
                 if (a.id === 'sign-out-link') return; // Handled separately
+=======
+                if (a.getAttribute('data-programs-toggle') === 'true') return
+>>>>>>> f887bb503596bd52b243f60b04f7af620415fc2d
                 const href = a.getAttribute('href')
                 const target = el.querySelector(href)
                 if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }) }
@@ -342,7 +389,13 @@ export default function Home() {
             observer.observe(node)
         })
 
-        return () => observer.disconnect()
+        return () => {
+            observer.disconnect()
+            if (programsToggle) programsToggle.removeEventListener('click', handleProgramsToggleClick)
+            document.removeEventListener('click', handleDocumentClick)
+            document.removeEventListener('keydown', handleEscape)
+            closeProgramsDropdown()
+        }
     }, [])
 
     return (

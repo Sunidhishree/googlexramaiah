@@ -3,6 +3,7 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Home from './pages/Home'
+<<<<<<< HEAD
 import HowItWorks from './pages/HowItWorks'
 import Programs from './pages/Programs'
 import Stories from './pages/Stories'
@@ -10,6 +11,10 @@ import Donate from './pages/Donate'
 import VolunteerForm from './pages/VolunteerForm'
 import OrphanageRegister from './pages/OrphanageRegister'
 import OrphanageDashboard from './pages/OrphanageDashboard'
+=======
+import OrphanageActivities from './pages/OrphanageActivities'
+import Elara from './pages/Elara'
+>>>>>>> f887bb503596bd52b243f60b04f7af620415fc2d
 
 export default function App() {
     const path = window.location.pathname
@@ -52,6 +57,14 @@ export default function App() {
 
     if (path === '/signup') {
         return <Signup />
+    }
+
+    if (path === '/programs/orphanage-activities') {
+        return <OrphanageActivities />
+    }
+
+    if (path === '/programs/elara') {
+        return <Elara />
     }
 
     return <Landing />
