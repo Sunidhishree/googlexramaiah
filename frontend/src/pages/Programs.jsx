@@ -76,8 +76,10 @@ export default function Programs() {
                 setXpToNext(data.xp_to_next_rank || 0);
                 setBadges(data.badges || []);
             } else {
-                // Fallback to feed endpoint
-                const feedRes = await fetch(`${API_BASE}/api/quests/feed`);
+                // Fallback to all quests with auth
+                const feedRes = await fetch(`${API_BASE}/api/quests/all`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (feedRes.ok) {
                     const data = await feedRes.json();
                     setQuests(data);
@@ -85,9 +87,9 @@ export default function Programs() {
             }
         } catch (error) {
             console.error("Error fetching quests", error);
-            // Fallback
+            // Fallback without auth
             try {
-                const feedRes = await fetch(`${API_BASE}/api/quests/feed`);
+                const feedRes = await fetch(`${API_BASE}/api/quests/all`);
                 if (feedRes.ok) {
                     const data = await feedRes.json();
                     setQuests(data);

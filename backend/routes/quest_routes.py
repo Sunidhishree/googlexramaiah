@@ -127,6 +127,18 @@ def get_all_quests():
     if db is None:
         return jsonify({'error': 'DB error'}), 500
 
+    # Get current user uid if authenticated
+    current_uid = None
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        try:
+            from firebase_admin import auth as fb_auth
+            token = auth_header.split(" ")[1]
+            decoded = fb_auth.verify_id_token(token)
+            current_uid = decoded.get("uid")
+        except Exception:
+            pass
+
     quests = list(db.quests.find({"status": "active"}).sort("deadline", 1))
     for q in quests:
         # Enrich with org info
@@ -137,6 +149,21 @@ def get_all_quests():
             q["org_state"] = org.get("state", "")
         q["urgency"] = _compute_urgency(q.get("deadline"))
         q["spots_filled"] = len(q.get("accepted_by", []))
+
+        # Normalize XP field
+        q["xp"] = q.get("xp") or q.get("xp_reward") or 100
+
+        # Normalize spots
+        raw_spots = q.get("spots_available") or q.get("spots", 10)
+        try:
+            q["spots_available"] = int(raw_spots) if raw_spots else 10
+        except (ValueError, TypeError):
+            q["spots_available"] = 10
+
+        # Add accepted/completed flags for current user
+        if current_uid:
+            q["accepted_by_me"] = current_uid in q.get("accepted_by", [])
+            q["completed_by_me"] = current_uid in q.get("completed_by", [])
 
     return jsonify([_serialize(q) for q in quests])
 
@@ -206,10 +233,14 @@ def accept_quest(quest_id):
     if uid in quest.get("accepted_by", []):
         return jsonify({'error': 'Already accepted', 'already_accepted': True}), 400
 
-    # Check spots
-    spots_available = quest.get("spots_available", 10)
+    # Check spots — field may be "spots" or "spots_available", and may be string
+    raw_spots = quest.get("spots_available") or quest.get("spots", 10)
+    try:
+        spots_available = int(raw_spots) if raw_spots else 10
+    except (ValueError, TypeError):
+        spots_available = 10
     spots_filled = len(quest.get("accepted_by", []))
-    if spots_filled >= spots_available:
+    if spots_available > 0 and spots_filled >= spots_available:
         return jsonify({'error': 'No spots available'}), 400
 
     # Update quest
@@ -221,7 +252,8 @@ def accept_quest(quest_id):
         }
     )
 
-    xp_reward = quest.get("xp", 100)
+    # XP field may be "xp", "xp_reward", or missing
+    xp_reward = quest.get("xp") or quest.get("xp_reward") or 100
 
     # Update volunteer XP and track quest
     quest_type = quest.get("quest_type", "")
@@ -303,8 +335,8 @@ def complete_quest(quest_id):
     if uid in completed_by:
         return jsonify({'error': 'Already completed', 'already_completed': True}), 400
 
-    # 4. Award XP
-    xp_reward = quest.get("xp", 100)
+    # 4. Award XP — field may be "xp" or "xp_reward"
+    xp_reward = quest.get("xp") or quest.get("xp_reward") or 100
     db.volunteers.update_one(
         {"_id": uid},
         {"$inc": {"xp": xp_reward}}
