@@ -30,6 +30,10 @@ if not os.path.exists(SOCIAL_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SOCIAL_FOLDER'] = SOCIAL_FOLDER
 
+# Register quest blueprint
+from routes.quest_routes import quest_bp
+app.register_blueprint(quest_bp, url_prefix='/api/quests')
+
 # ID Regex Patterns
 ID_PATTERNS = {
     'aadhaar': r'\d{4}\s?\d{4}\s?\d{4}',
@@ -534,33 +538,9 @@ def global_stories_feed():
             s['org_name'] = org.get('name', 'Unknown')
     return jsonify([serialize_doc(s) for s in stories])
 
-@app.route('/api/quests/<quest_id>/accept', methods=['POST'])
-@verify_firebase_token
-def accept_quest(quest_id):
-    if not mongo_client:
-        return jsonify({'error': 'DB error'}), 500
-    db = mongo_client[os.getenv('MONGODB_DB', 'ummeed')]
-    
-    uid = request.user.get('uid')
-    
-    quest = db.quests.find_one_and_update(
-        {'_id': quest_id},
-        {'$inc': {'accepted': 1}},
-        return_document=True
-    )
-    
-    if not quest:
-        return jsonify({'error': 'Quest not found'}), 404
-        
-    xp_reward = quest.get('xp', 100)
-    
-    db.volunteers.update_one(
-        {'_id': uid},
-        {'$inc': {'xp': xp_reward}},
-        upsert=True
-    )
-    
-    return jsonify({'success': True, 'xp_earned': xp_reward})
+
+# accept_quest route moved to routes/quest_routes.py blueprint
+
 
 @app.route('/api/user/profile', methods=['GET'])
 @verify_firebase_token
@@ -571,13 +551,40 @@ def user_profile():
     
     uid = request.user.get('uid')
     volunteer = db.volunteers.find_one({'_id': uid})
-    
+
+    # Resolve the best available name from all sources
+    resolved_name = None
     if volunteer:
-        return jsonify(serialize_doc(volunteer))
+        resolved_name = volunteer.get("name")
+
+    # If name is missing or is a generic fallback, try Firebase / email
+    if not resolved_name or resolved_name.lower() in ("volunteer", "user"):
+        resolved_name = (
+            request.user.get("name")
+            or request.user.get("display_name")
+            or None
+        )
+
+    # Last resort: derive from email
+    if not resolved_name:
+        email = request.user.get("email", "")
+        if email:
+            resolved_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
+        else:
+            resolved_name = "Volunteer"
+
+    if volunteer:
+        # Persist the resolved name back so it's correct next time
+        if volunteer.get("name") != resolved_name:
+            db.volunteers.update_one({"_id": uid}, {"$set": {"name": resolved_name}})
+        doc = serialize_doc(volunteer)
+        doc["name"] = resolved_name
+        return jsonify(doc)
     
     return jsonify({
         '_id': uid,
-        'name': request.user.get('name') or request.user.get('email', 'Volunteer'),
+        'name': resolved_name,
+        'email': request.user.get('email', ''),
         'xp': 0
     })
 
