@@ -13,6 +13,10 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from auth import verify_firebase_token, mongo_client
 from datetime import datetime
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import threading
 
 # Tesseract path
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', r"C:\Program Files\Tesseract-OCR\tesseract.exe")
@@ -675,6 +679,126 @@ def geocode_address(address):
         print(f'[Geocode Error] {e}')
     return None
 
+def send_certificate_email_async(user_email, user_name, quest_title, xp_awarded):
+    def send_email():
+        if not user_email:
+            return
+            
+        html_content = f"""
+        <html>
+        <head>
+            <style>
+                .cert-container {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #fbf8f1;
+                    padding: 40px;
+                    text-align: center;
+                    border: 8px solid #c4714a;
+                    border-radius: 10px;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    color: #3e4a3d;
+                }}
+                .header {{
+                    font-size: 28px;
+                    color: #c4714a;
+                    margin-bottom: 10px;
+                    font-weight: bold;
+                    letter-spacing: 2px;
+                }}
+                .subheader {{
+                    font-size: 18px;
+                    color: #8a9a86;
+                    margin-bottom: 30px;
+                }}
+                .name {{
+                    font-size: 36px;
+                    font-weight: bold;
+                    color: #2b3329;
+                    margin: 20px 0;
+                    border-bottom: 2px solid #8a9a86;
+                    display: inline-block;
+                    padding-bottom: 5px;
+                }}
+                .text {{
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin: 20px 0;
+                }}
+                .highlight {{
+                    font-weight: bold;
+                    color: #c4714a;
+                }}
+                .footer {{
+                    margin-top: 40px;
+                    font-size: 14px;
+                    color: #8a9a86;
+                    font-style: italic;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="cert-container">
+                <div class="header">CERTIFICATE OF COMPLETION</div>
+                <div class="subheader">Ummeed Volunteer Program</div>
+                
+                <div class="text">This proudly certifies that</div>
+                <div class="name">{user_name or 'Valued Volunteer'}</div>
+                
+                <div class="text">
+                    has successfully completed the quest:<br>
+                    <span class="highlight">"{quest_title}"</span>
+                </div>
+                
+                <div class="text">
+                    and has been awarded <span class="highlight">{xp_awarded} XP</span> for their outstanding contribution to the community.
+                </div>
+                
+                <div class="footer">
+                    Thank you for spreading hope and making a difference.<br>
+                    - The Ummeed Team
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        smtp_port = int(os.getenv('SMTP_PORT', 465))
+        smtp_user = os.getenv('SMTP_USERNAME')
+        smtp_pass = os.getenv('SMTP_PASSWORD')
+        from_email = os.getenv('FROM_EMAIL', smtp_user)
+        use_ssl = os.getenv('SMTP_USE_SSL', 'true').lower() == 'true'
+        
+        if not smtp_user or not smtp_pass:
+            print("[Email] Skipping certificate email: SMTP credentials not configured in .env")
+            return
+            
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f"🏆 Congratulations! Certificate for completing '{quest_title}'"
+            msg['From'] = f"Ummeed <{from_email}>"
+            msg['To'] = user_email
+            
+            part = MIMEText(html_content, 'html')
+            msg.attach(part)
+            
+            if use_ssl:
+                server = smtplib.SMTP_SSL(smtp_server, smtp_port)
+            else:
+                server = smtplib.SMTP(smtp_server, smtp_port)
+                server.starttls()
+                
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+            server.quit()
+            print(f"[Email] Successfully sent certificate to {user_email}")
+        except Exception as e:
+            print(f"[Email] Failed to send certificate: {e}")
+
+    threading.Thread(target=send_email).start()
+
+
 
 LOCATION_THRESHOLD_KM = 0.5  # 500 metres
 
@@ -846,6 +970,14 @@ def verify_quest_completion(quest_id):
             upsert=True
         )
         print(f'[Quest] Awarded {xp_reward} XP to user {uid} for quest {quest_id}')
+        
+        # Send Certificate Email
+        user_doc = db.users.find_one({'uid': uid}) or {}
+        user_email = user_doc.get('email')
+        user_name = user_doc.get('name')
+        if user_email:
+            quest_title = quest.get('title', 'Volunteer Quest')
+            send_certificate_email_async(user_email, user_name, quest_title, xp_awarded)
     else:
         print(f'[Quest] Verification failed for user {uid} on quest {quest_id}: {final_reason}')
 
