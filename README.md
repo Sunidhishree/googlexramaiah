@@ -2,8 +2,6 @@
 
 Ummeed is a sophisticated, full-stack management platform designed to connect orphanages with passionate volunteers. By leveraging AI-driven verification agents and a gamified experience, the platform creates a secure and engaging environment for social impact.
 
----
-
 ## Detailed Features
 
 ### 1. Orphanage Onboarding & Verification
