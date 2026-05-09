@@ -367,13 +367,25 @@ def complete_quest(quest_id):
     except Exception as e:
         print(f"[Complete] Certificate generation failed: {e}")
 
-    # 9. Send email
+    # 9. Send email — resolve email from multiple sources
     certificate_sent = False
-    user_email = volunteer.get("details", {}).get("email", "") if isinstance(volunteer.get("details"), dict) else ""
+    user_email = ""
+
+    # Try volunteer.details.email
+    details = volunteer.get("details")
+    if isinstance(details, dict):
+        user_email = details.get("email", "")
+    # Try volunteer.email directly
+    if not user_email:
+        user_email = volunteer.get("email", "")
+    # Try Firebase token email
     if not user_email:
         user_email = request.user.get("email", "")
 
-    if user_email:
+    print(f"[Complete] Resolved email: '{user_email}' for user {uid}")
+    print(f"[Complete] PDF path: {pdf_path}")
+
+    if user_email and pdf_path:
         try:
             certificate_sent = send_certificate_email(
                 user_email=user_email,
@@ -382,10 +394,15 @@ def complete_quest(quest_id):
                 xp_earned=xp_reward,
                 pdf_path=pdf_path
             )
+            print(f"[Complete] Email result: {certificate_sent}")
         except Exception as e:
             print(f"[Complete] Email sending failed: {e}")
-    else:
+            import traceback
+            traceback.print_exc()
+    elif not user_email:
         print(f"[Complete] No email found for user {uid}")
+    elif not pdf_path:
+        print(f"[Complete] PDF was not generated, skipping email")
 
     # 10. Return response
     next_rank_name, xp_to_next = _get_next_rank_info(new_xp)

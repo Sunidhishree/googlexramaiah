@@ -551,13 +551,40 @@ def user_profile():
     
     uid = request.user.get('uid')
     volunteer = db.volunteers.find_one({'_id': uid})
-    
+
+    # Resolve the best available name from all sources
+    resolved_name = None
     if volunteer:
-        return jsonify(serialize_doc(volunteer))
+        resolved_name = volunteer.get("name")
+
+    # If name is missing or is a generic fallback, try Firebase / email
+    if not resolved_name or resolved_name.lower() in ("volunteer", "user"):
+        resolved_name = (
+            request.user.get("name")
+            or request.user.get("display_name")
+            or None
+        )
+
+    # Last resort: derive from email
+    if not resolved_name:
+        email = request.user.get("email", "")
+        if email:
+            resolved_name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
+        else:
+            resolved_name = "Volunteer"
+
+    if volunteer:
+        # Persist the resolved name back so it's correct next time
+        if volunteer.get("name") != resolved_name:
+            db.volunteers.update_one({"_id": uid}, {"$set": {"name": resolved_name}})
+        doc = serialize_doc(volunteer)
+        doc["name"] = resolved_name
+        return jsonify(doc)
     
     return jsonify({
         '_id': uid,
-        'name': request.user.get('name') or request.user.get('email', 'Volunteer'),
+        'name': resolved_name,
+        'email': request.user.get('email', ''),
         'xp': 0
     })
 
