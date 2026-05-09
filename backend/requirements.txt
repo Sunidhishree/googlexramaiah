@@ -1,0 +1,10 @@
+flask
+flask-cors
+pymongo
+firebase-admin
+opencv-python-headless
+pytesseract
+Pillow
+thefuzz
+python-dotenv
+werkzeug

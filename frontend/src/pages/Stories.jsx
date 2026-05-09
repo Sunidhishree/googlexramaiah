@@ -65,7 +65,7 @@ export default function Stories() {
     };
 
     if (loading) {
-        return <div className="stories-page"><div className="loading">Loading Stories...</div></div>;
+        return <div className="loading">Loading Stories of Hope...</div>;
     }
 
     return (
@@ -118,7 +118,7 @@ export default function Stories() {
                                         onClick={() => handleLike(story._id)}
                                         disabled={story.liked_by_me}
                                     >
-                                        <span className="heart-icon">{story.liked_by_me ? '❤️' : '🤍'}</span>
+                                        <span className="heart-icon">{story.liked_by_me ? '❤' : '♥'}</span>
                                         <span className="like-count">{story.likes || 0}</span>
                                     </button>
                                 </div>

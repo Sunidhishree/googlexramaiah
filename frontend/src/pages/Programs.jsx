@@ -6,6 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 const API_BASE = "http://localhost:5000";
 
 export default function Programs() {
+    const [isProfileMinimized, setIsProfileMinimized] = useState(false);
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [quests, setQuests] = useState([]);
@@ -81,7 +82,7 @@ export default function Programs() {
     };
 
     if (loading) {
-        return <div className="programs-page"><div className="loading">Loading Volunteer Dashboard...</div></div>;
+        return <div className="loading">Loading Volunteer Dashboard...</div>;
     }
 
     if (!user) {
@@ -96,6 +97,7 @@ export default function Programs() {
         );
     }
 
+
     const currentXp = profile?.xp || 0;
     
     const calculateProgress = (targetXp) => {
@@ -106,40 +108,51 @@ export default function Programs() {
         <div className="programs-page">
             <nav className="programs-nav">
                 <a href="/home" className="nav-logo">Ummeed<span>.</span></a>
-                <div className="nav-profile">
+                <div className={`nav-profile ${isProfileMinimized ? 'minimized' : ''}`}>
                     <div className="profile-header">
                         <div className="avatar">{(profile?.name || user?.email || "V")[0].toUpperCase()}</div>
-                        <div>
-                            <h3>{profile?.name || "Volunteer"}</h3>
-                            <p>Total XP: <strong>{currentXp}</strong></p>
-                        </div>
+                        {!isProfileMinimized && (
+                            <div>
+                                <h3>{profile?.name || "Volunteer"}</h3>
+                                <p>Total XP: <strong>{currentXp}</strong></p>
+                            </div>
+                        )}
+                        <button 
+                            className="btn-minimize" 
+                            onClick={() => setIsProfileMinimized(!isProfileMinimized)}
+                            title={isProfileMinimized ? "Expand Profile" : "Minimize Profile"}
+                        >
+                            {isProfileMinimized ? '➕' : '➖'}
+                        </button>
                     </div>
                     
-                    <div className="xp-bars-container">
-                        <div className="xp-bar-group">
-                            <div className="xp-label">
-                                <span>🥉 Bronze</span>
-                                <span>{currentXp} / 3000 XP</span>
+                    {!isProfileMinimized && (
+                        <div className="xp-bars-container">
+                            <div className="xp-bar-group">
+                                <div className="xp-label">
+                                    <span>🥉 Bronze</span>
+                                    <span>{currentXp} / 3000 XP</span>
+                                </div>
+                                <div className="xp-track"><div className="xp-fill bronze" style={{ width: `${calculateProgress(3000)}%` }}></div></div>
                             </div>
-                            <div className="xp-track"><div className="xp-fill bronze" style={{ width: `${calculateProgress(3000)}%` }}></div></div>
-                        </div>
 
-                        <div className="xp-bar-group">
-                            <div className="xp-label">
-                                <span>🥈 Silver</span>
-                                <span>{currentXp} / 5000 XP</span>
+                            <div className="xp-bar-group">
+                                <div className="xp-label">
+                                    <span>🥈 Silver</span>
+                                    <span>{currentXp} / 5000 XP</span>
+                                </div>
+                                <div className="xp-track"><div className="xp-fill silver" style={{ width: `${calculateProgress(5000)}%` }}></div></div>
                             </div>
-                            <div className="xp-track"><div className="xp-fill silver" style={{ width: `${calculateProgress(5000)}%` }}></div></div>
-                        </div>
 
-                        <div className="xp-bar-group">
-                            <div className="xp-label">
-                                <span>🥇 Gold</span>
-                                <span>{currentXp} / 10000 XP</span>
+                            <div className="xp-bar-group">
+                                <div className="xp-label">
+                                    <span>🥇 Gold</span>
+                                    <span>{currentXp} / 10000 XP</span>
+                                </div>
+                                <div className="xp-track"><div className="xp-fill gold" style={{ width: `${calculateProgress(10000)}%` }}></div></div>
                             </div>
-                            <div className="xp-track"><div className="xp-fill gold" style={{ width: `${calculateProgress(10000)}%` }}></div></div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </nav>
 
@@ -167,14 +180,17 @@ export default function Programs() {
                                 
                                 <div className="quest-meta">
                                     <div className="meta-item">
-                                        <strong>Organisation:</strong> {quest.org_name}
+                                        <strong>Organisation</strong>
+                                        <span>{quest.org_name || "Community Partner"}</span>
                                     </div>
                                     <div className="meta-item">
-                                        <strong>Deadline:</strong> {new Date(quest.deadline).toLocaleDateString()}
+                                        <strong>Deadline</strong>
+                                        <span>{quest.deadline ? new Date(quest.deadline).toLocaleDateString() : 'Flexible'}</span>
                                     </div>
                                     {quest.items_needed && (
                                         <div className="meta-item">
-                                            <strong>Items:</strong> {quest.items_needed}
+                                            <strong>Requirements</strong>
+                                            <span>{quest.items_needed}</span>
                                         </div>
                                     )}
                                 </div>
