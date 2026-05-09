@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
+import math
 import re
 import cv2
 import pytesseract
@@ -9,11 +13,8 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from auth import verify_firebase_token, mongo_client
 from datetime import datetime
-from dotenv import load_dotenv
 
-load_dotenv()
-
-# Tesseract path from user request
+# Tesseract path
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_CMD', r"C:\Program Files\Tesseract-OCR\tesseract.exe")
 
 app = Flask(__name__)
@@ -27,8 +28,79 @@ SOCIAL_FOLDER = 'social'
 if not os.path.exists(SOCIAL_FOLDER):
     os.makedirs(SOCIAL_FOLDER)
 
+# Dedicated folder for quest proof photos (used by BLIP analysis)
+QUESTS_FOLDER = 'quests'
+if not os.path.exists(QUESTS_FOLDER):
+    os.makedirs(QUESTS_FOLDER)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SOCIAL_FOLDER'] = SOCIAL_FOLDER
+app.config['QUESTS_FOLDER'] = QUESTS_FOLDER
+
+# ─── BLIP lazy loader ────────────────────────────────────────────────────────
+_blip_processor = None
+_blip_model = None
+
+def get_blip():
+    """Lazy-load BLIP captioning model on first call (avoids slow startup)."""
+    global _blip_processor, _blip_model
+    if _blip_processor is None:
+        try:
+            from transformers import BlipProcessor, BlipForConditionalGeneration
+            import torch
+            print('[BLIP] Loading model Salesforce/blip-image-captioning-base ...')
+            _blip_processor = BlipProcessor.from_pretrained('Salesforce/blip-image-captioning-base')
+            _blip_model = BlipForConditionalGeneration.from_pretrained('Salesforce/blip-image-captioning-base')
+            _blip_model.eval()
+            print('[BLIP] Model loaded successfully.')
+        except Exception as e:
+            print(f'[BLIP] Failed to load model: {e}')
+            return None, None
+    return _blip_processor, _blip_model
+
+
+def blip_caption(image_path: str) -> str:
+    """Generate an image caption using BLIP. Returns empty string on failure."""
+    processor, model = get_blip()
+    if processor is None:
+        return ''
+    try:
+        import torch
+        raw = Image.open(image_path).convert('RGB')
+        inputs = processor(raw, return_tensors='pt')
+        with torch.no_grad():
+            out = model.generate(**inputs, max_new_tokens=50)
+        caption = processor.decode(out[0], skip_special_tokens=True)
+        print(f'[BLIP] Caption: {caption}')
+        return caption.lower()
+    except Exception as e:
+        print(f'[BLIP] Caption error: {e}')
+        return ''
+
+
+def image_matches_quest(caption: str, quest: dict) -> bool:
+    """
+    Returns True if any meaningful word (>3 chars) from the quest's
+    title / description / items_needed appears in the BLIP caption.
+    """
+    if not caption:
+        return False
+    # Build keyword pool from quest text
+    quest_text = ' '.join(filter(None, [
+        quest.get('title', ''),
+        quest.get('description', ''),
+        quest.get('items_needed', ''),
+        quest.get('quest_type', ''),
+    ])).lower()
+    # Common English stop-words to skip
+    stopwords = {'the', 'and', 'for', 'with', 'this', 'that', 'have', 'from', 'they',
+                 'will', 'your', 'been', 'more', 'also', 'into', 'some', 'than', 'then'}
+    keywords = [w for w in re.findall(r'[a-z]+', quest_text) if len(w) > 3 and w not in stopwords]
+    for kw in keywords:
+        if kw in caption:
+            print(f'[BLIP] Keyword match: "{kw}" found in caption')
+            return True
+    return False
 
 # ID Regex Patterns
 ID_PATTERNS = {
@@ -537,30 +609,258 @@ def global_stories_feed():
 @app.route('/api/quests/<quest_id>/accept', methods=['POST'])
 @verify_firebase_token
 def accept_quest(quest_id):
+    """Record quest acceptance. XP is NOT awarded here — only after verification.
+    Returns 409 if the user has already completed this quest."""
     if not mongo_client:
         return jsonify({'error': 'DB error'}), 500
     db = mongo_client[os.getenv('MONGODB_DB', 'ummeed')]
-    
+
     uid = request.user.get('uid')
-    
+
+    # ── Guard: already completed — cannot accept again ────────────────────────
+    completed = db.quest_completions.find_one({'quest_id': quest_id, 'user_id': uid, 'status': 'verified'})
+    if completed:
+        return jsonify({
+            'error': 'already_completed',
+            'message': 'You have already completed this quest. Each quest can only be done once.'
+        }), 409
+
+    # ── Guard: already accepted — idempotent, just confirm ───────────────────
+    already = db.quest_acceptances.find_one({'quest_id': quest_id, 'user_id': uid})
+    if already:
+        return jsonify({'success': True, 'already_accepted': True, 'message': 'Quest already accepted.'})
+
     quest = db.quests.find_one_and_update(
         {'_id': quest_id},
         {'$inc': {'accepted': 1}},
         return_document=True
     )
-    
+
     if not quest:
         return jsonify({'error': 'Quest not found'}), 404
-        
+
+    # Record acceptance
+    db.quest_acceptances.insert_one({
+        'quest_id': quest_id,
+        'user_id': uid,
+        'status': 'accepted',
+        'accepted_at': datetime.utcnow()
+    })
+
+    return jsonify({'success': True, 'message': 'Quest accepted. Submit proof to earn XP.'})
+
+
+def haversine_km(lat1, lon1, lat2, lon2):
+    """Compute distance in km between two GPS points."""
+    R = 6371
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def geocode_address(address):
+    """Geocode a text address using Nominatim (free, no API key). Returns (lat, lon) or None."""
+    import urllib.request, urllib.parse, json as _json
+    try:
+        params = urllib.parse.urlencode({'q': address, 'format': 'json', 'limit': 1})
+        url = f'https://nominatim.openstreetmap.org/search?{params}'
+        req = urllib.request.Request(url, headers={'User-Agent': 'ummeed-app/1.0'})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            results = _json.loads(resp.read())
+        if results:
+            return float(results[0]['lat']), float(results[0]['lon'])
+    except Exception as e:
+        print(f'[Geocode Error] {e}')
+    return None
+
+
+LOCATION_THRESHOLD_KM = 0.5  # 500 metres
+
+
+@app.route('/api/quests/<quest_id>/verify-completion', methods=['POST'])
+@verify_firebase_token
+def verify_quest_completion(quest_id):
+    """
+    Verify quest completion using BLIP image captioning + GPS proximity.
+    OR logic: if EITHER image OR location matches → XP is awarded.
+    Full status is persisted in the 'quest_completions' MongoDB collection.
+    """
+    if not mongo_client:
+        return jsonify({'error': 'DB error'}), 500
+    db = mongo_client[os.getenv('MONGODB_DB', 'ummeed')]
+
+    uid = request.user.get('uid')
+
+    # ── Prevent double-verification ──────────────────────────────────────────
+    existing = db.quest_completions.find_one({'quest_id': quest_id, 'user_id': uid, 'status': 'verified'})
+    if existing:
+        return jsonify({'verified': True, 'message': 'Already verified. XP was awarded previously.', 'xp_awarded': existing.get('xp_awarded', 0)})
+
+    # ── Fetch quest ───────────────────────────────────────────────────────────
+    quest = db.quests.find_one({'_id': quest_id})
+    if not quest:
+        return jsonify({'error': 'Quest not found'}), 404
+
+    orphanage_id = request.form.get('orphanage_id') or quest.get('orphanage_id')
     xp_reward = quest.get('xp', 100)
-    
-    db.volunteers.update_one(
-        {'_id': uid},
-        {'$inc': {'xp': xp_reward}},
+
+    # ── Fetch org address ─────────────────────────────────────────────────────
+    org = db.orphanages.find_one({'_id': orphanage_id}) if orphanage_id else None
+    org_address_parts = []
+    if org:
+        if org.get('address'): org_address_parts.append(org['address'])
+        if org.get('pincode'): org_address_parts.append(org['pincode'])
+        if org.get('state'):   org_address_parts.append(org['state'])
+        org_address_parts.append('India')
+    org_address = ', '.join(org_address_parts)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # STEP 1 — Save proof photo to QUESTS_FOLDER and run BLIP
+    # ══════════════════════════════════════════════════════════════════════════
+    proof_url = ''
+    blip_caption_text = ''
+    image_verified = False
+    image_reason = 'No proof photo uploaded.'
+
+    proof_file = request.files.get('photo')
+    if proof_file and proof_file.filename:
+        ext = os.path.splitext(proof_file.filename)[1] or '.jpg'
+        proof_filename = f"proof_{quest_id}_{uid}_{os.urandom(4).hex()}{ext}"
+        proof_path = os.path.join(app.config['QUESTS_FOLDER'], proof_filename)
+        proof_file.save(proof_path)
+        proof_url = f"{request.host_url}quests/{proof_filename}"
+        print(f'[Quest] Saved proof photo to: {proof_path}')
+
+        # ── BLIP captioning ──────────────────────────────────────────────────
+        blip_caption_text = blip_caption(proof_path)
+        if blip_caption_text:
+            image_verified = image_matches_quest(blip_caption_text, quest)
+            if image_verified:
+                image_reason = f'Image verified via BLIP: "{blip_caption_text}" matches quest requirements.'
+            else:
+                image_reason = f'BLIP caption "{blip_caption_text}" did not match quest keywords.'
+        else:
+            image_reason = 'BLIP model unavailable or image could not be processed.'
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # STEP 2 — GPS proximity check against org address
+    # ══════════════════════════════════════════════════════════════════════════
+    location_verified = False
+    location_reason = ''
+    distance_km = None
+
+    user_lat = request.form.get('latitude')
+    user_lon = request.form.get('longitude')
+
+    if user_lat and user_lon:
+        if org_address:
+            try:
+                u_lat, u_lon = float(user_lat), float(user_lon)
+                org_coords = geocode_address(org_address)
+                if org_coords:
+                    org_lat, org_lon = org_coords
+                    distance_km = haversine_km(u_lat, u_lon, org_lat, org_lon)
+                    if distance_km <= LOCATION_THRESHOLD_KM:
+                        location_verified = True
+                        location_reason = f'Location verified — {distance_km * 1000:.0f} m from the organisation.'
+                    else:
+                        location_reason = f'You are {distance_km:.2f} km from the organisation (need ≤500 m).'
+                else:
+                    # Cannot geocode — be lenient
+                    location_verified = True
+                    location_reason = 'Org address could not be geocoded; location check bypassed.'
+            except Exception as e:
+                location_reason = f'Location error: {e}'
+        else:
+            # No address stored for org — skip check
+            location_verified = True
+            location_reason = 'No address registered for this organisation; location check skipped.'
+    else:
+        location_reason = 'No GPS coordinates provided.'
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # OR logic: verify if EITHER check passes
+    # ══════════════════════════════════════════════════════════════════════════
+    is_verified = image_verified or location_verified
+
+    if is_verified:
+        verify_method = []
+        if image_verified:    verify_method.append('image')
+        if location_verified: verify_method.append('location')
+        final_reason = ' | '.join(filter(None, [
+            image_reason if image_verified else None,
+            location_reason if location_verified else None,
+        ])) or 'Verified.'
+    else:
+        verify_method = []
+        final_reason = ' | '.join(filter(None, [image_reason, location_reason])) or 'Verification failed.'
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # STEP 3 — Persist full completion record to MongoDB
+    # ══════════════════════════════════════════════════════════════════════════
+    completion_id = f"comp_{quest_id}_{uid}"
+    completion_doc = {
+        '_id': completion_id,
+        'quest_id': quest_id,
+        'user_id': uid,
+        'orphanage_id': orphanage_id,
+        'status': 'verified' if is_verified else 'failed',
+        'xp_awarded': xp_reward if is_verified else 0,
+        'xp_value': xp_reward,
+        'image_verified': image_verified,
+        'location_verified': location_verified,
+        'blip_caption': blip_caption_text,
+        'distance_km': distance_km,
+        'proof_url': proof_url,
+        'org_address_used': org_address,
+        'verify_method': verify_method,
+        'reason': final_reason,
+        'created_at': datetime.utcnow(),
+    }
+
+    db.quest_completions.update_one(
+        {'_id': completion_id},
+        {'$set': completion_doc},
         upsert=True
     )
-    
-    return jsonify({'success': True, 'xp_earned': xp_reward})
+
+    # Also update the acceptance record
+    db.quest_acceptances.update_one(
+        {'quest_id': quest_id, 'user_id': uid},
+        {'$set': {
+            'status': 'verified' if is_verified else 'failed',
+            'updated_at': datetime.utcnow(),
+            'xp_awarded': xp_reward if is_verified else 0,
+        }}
+    )
+
+    # Award XP only if verified
+    xp_awarded = 0
+    if is_verified:
+        xp_awarded = xp_reward
+        db.volunteers.update_one(
+            {'_id': uid},
+            {'$inc': {'xp': xp_reward}},
+            upsert=True
+        )
+        print(f'[Quest] Awarded {xp_reward} XP to user {uid} for quest {quest_id}')
+    else:
+        print(f'[Quest] Verification failed for user {uid} on quest {quest_id}: {final_reason}')
+
+    return jsonify({
+        'verified': is_verified,
+        'message': final_reason,
+        'reason': final_reason,
+        'xp_awarded': xp_awarded,
+        'image_verified': image_verified,
+        'location_verified': location_verified,
+        'blip_caption': blip_caption_text,
+        'distance_km': distance_km,
+        'proof_url': proof_url,
+        'verify_method': verify_method,
+    })
 
 @app.route('/api/user/profile', methods=['GET'])
 @verify_firebase_token
@@ -568,19 +868,75 @@ def user_profile():
     if not mongo_client:
         return jsonify({'error': 'DB error'}), 500
     db = mongo_client[os.getenv('MONGODB_DB', 'ummeed')]
-    
+
     uid = request.user.get('uid')
     volunteer = db.volunteers.find_one({'_id': uid})
-    
+
     if volunteer:
         return jsonify(serialize_doc(volunteer))
-    
+
     return jsonify({
         '_id': uid,
         'name': request.user.get('name') or request.user.get('email', 'Volunteer'),
         'xp': 0
     })
 
+
+@app.route('/api/user/quest-statuses', methods=['GET'])
+@verify_firebase_token
+def user_quest_statuses():
+    """
+    Return all quest acceptances + completions for the current user.
+    Used by the frontend to restore accepted/verified state across page reloads.
+    """
+    if not mongo_client:
+        return jsonify({'error': 'DB error'}), 500
+    db = mongo_client[os.getenv('MONGODB_DB', 'ummeed')]
+
+    uid = request.user.get('uid')
+
+    # All acceptances
+    acceptances = list(db.quest_acceptances.find({'user_id': uid}))
+    # All completions
+    completions = list(db.quest_completions.find({'user_id': uid}))
+
+    # Build a map: quest_id -> {status, xp_awarded, image_verified, location_verified, blip_caption, ...}
+    result = {}
+    for a in acceptances:
+        qid = a.get('quest_id')
+        if qid:
+            result[qid] = {
+                'accepted': True,
+                'status': a.get('status', 'accepted'),
+                'xp_awarded': a.get('xp_awarded', 0),
+            }
+    for c in completions:
+        qid = c.get('quest_id')
+        if qid:
+            entry = result.get(qid, {})
+            entry.update({
+                'accepted': True,
+                'status': c.get('status', 'failed'),
+                'xp_awarded': c.get('xp_awarded', 0),
+                'image_verified': c.get('image_verified', False),
+                'location_verified': c.get('location_verified', False),
+                'blip_caption': c.get('blip_caption', ''),
+                'distance_km': c.get('distance_km'),
+                'proof_url': c.get('proof_url', ''),
+                'verify_method': c.get('verify_method', []),
+                'reason': c.get('reason', ''),
+            })
+            result[qid] = entry
+
+    return jsonify(result)
+
+
+@app.route('/quests/<filename>')
+def serve_quest_proof(filename):
+    """Serve locally stored quest proof photos."""
+    return send_from_directory(app.config['QUESTS_FOLDER'], filename)
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_DEBUG', 'False') == 'True')
+    # use_reloader=False is REQUIRED when using PyTorch/Transformers on Windows to avoid WinError 10038 crashes
+    app.run(host='0.0.0.0', port=port, debug=os.getenv('FLASK_DEBUG', 'False') == 'True', use_reloader=False)

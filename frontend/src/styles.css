@@ -1682,7 +1682,7 @@ footer {
     font-family: inherit;
     font-size: 0.95rem;
     margin-bottom: 1.5rem;
-    transition: border-color: 0.2s;
+    transition: border-color 0.2s;
 }
 
 .donate-input:focus {
